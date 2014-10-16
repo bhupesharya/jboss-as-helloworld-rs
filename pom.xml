@@ -89,13 +89,6 @@
         <version>6.1.2.Final-redhat-5</version>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-bom</artifactId>
-        <version>2.3.6.Final</version>
-        <type>pom</type>
-        <scope>provided</scope>
-      </dependency>
 
     </dependencies>
   </dependencyManagement>
@@ -127,6 +120,21 @@
       <groupId>org.kie.remote</groupId>
       <artifactId>kie-services-client</artifactId>
       <version>6.0.3-redhat-6</version>
+      <exclusions>
+        <!-- Provided by the EAP 6.1.1 jaxrs subsystem -->
+        <exclusion>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-jaxrs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-jaxb-provider</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.resteasy</groupId>
+          <artifactId>resteasy-jackson-provider</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
@@ -134,6 +142,10 @@
     <repository>
       <id>jboss</id>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>redhat-all</id>
+      <url>https://maven.repository.redhat.com/techpreview/all/</url>
     </repository>
   </repositories>
 
