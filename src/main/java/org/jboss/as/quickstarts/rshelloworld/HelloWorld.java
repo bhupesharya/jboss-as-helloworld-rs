@@ -16,6 +16,8 @@
  */
 package org.jboss.as.quickstarts.rshelloworld;
 
+import org.jboss.resteasy.client.ClientResponseFailure;
+
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -53,43 +55,43 @@ public class HelloWorld {
 		return "<xml><result>" + helloService.createHelloMessage("World")
 				+ "</result></xml>";
 	}
-	
-	 @GET
-	    @Path("/postxml")
-	   @Produces(MediaType.TEXT_PLAIN)   
-	 // @Consumes("text/plain")
-	    public Response getHelloWorldPostxml(@QueryParam("inputcode") String inputcode) throws Exception {
-	    	System.out.println("inputcode "+inputcode);
-	    String	Contentforreturn="";
-	    	long processid;
-	    	if (new String("*101").equals(inputcode))
-	    	{
-	    		System.out.println("inside if condition "+inputcode);
-	    		 processid = CreateProcesses.startProcess();
-	    	    //FileOutputStream fout = new FileOutputStream("/tmp/myfile.txt");
-	    		//new PrintStream(fout).println(processid);
-	    		 //fout.close();
-	    		//Contentforreturn = processid;
-	    		//String taaskid =   TaskID.id(processid); 
-	    		 //String taskContents = CreateProcesses.getTaskContents();
-	    		//Contentforreturn = staticmenu.getMenu(taaskid);
-	    		 //Contentforreturn = taskContents;
-	    		Contentforreturn = "You are in if condition";
-	    		
-	    	}
-	    	else 
-	    	{
-	    		Contentforreturn = "You are in else condition";
-	            
-	    	}
-	    	 return	Response.ok(Contentforreturn).build();
-	    	
-	    }
-	    
-	
 
-	    
-	@POST
+    @GET
+    @Path("/postxml")
+    @Produces(MediaType.TEXT_PLAIN)
+    // @Consumes("text/plain")
+    public Response getHelloWorldPostxml(@QueryParam("inputcode") String inputcode) throws Exception {
+        System.out.println("inputcode " + inputcode);
+        String Contentforreturn = "";
+        long processid;
+        if (new String("*101").equals(inputcode)) {
+            System.out.println("inside if condition " + inputcode);
+            try {
+                processid = CreateProcesses.startProcess();
+                Contentforreturn = "You are in if condition";
+            } catch (ClientResponseFailure crf) {
+                System.out.println("Response status: " + crf.getResponse().getResponseStatus());
+                System.out.println("Response body" + crf.getResponse().getEntity(String.class));
+                Contentforreturn = crf.getResponse().getEntity(String.class).toString();
+            }
+            //FileOutputStream fout = new FileOutputStream("/tmp/myfile.txt");
+            //new PrintStream(fout).println(processid);
+            //fout.close();
+            //Contentforreturn = processid;
+            //String taaskid =   TaskID.id(processid);
+            //String taskContents = CreateProcesses.getTaskContents();
+            //Contentforreturn = staticmenu.getMenu(taaskid);
+            //Contentforreturn = taskContents;
+
+
+        } else {
+            Contentforreturn = "You are in else condition";
+        }
+        return Response.ok(Contentforreturn).build();
+    }
+
+
+    @POST
 	@Path("/msisdnapi")
 
 	@Produces(MediaType.TEXT_PLAIN)   
