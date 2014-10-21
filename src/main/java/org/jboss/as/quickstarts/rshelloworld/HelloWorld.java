@@ -16,8 +16,6 @@
  */
 package org.jboss.as.quickstarts.rshelloworld;
 
-import org.jboss.resteasy.client.ClientResponseFailure;
-
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,6 +24,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.*;
 
 /**
  * A simple REST service which is able to say hello to someone using
@@ -55,43 +54,55 @@ public class HelloWorld {
 		return "<xml><result>" + helloService.createHelloMessage("World")
 				+ "</result></xml>";
 	}
+	
+	 @GET
+	    @Path("/postxml")
+	   @Produces(MediaType.TEXT_PLAIN)   
+	 // @Consumes("text/plain")
+	    public Response getHelloWorldPostxml(@QueryParam("inputcode") String inputcode) throws Exception {
+	    	System.out.println("inputcode "+inputcode);
+	    String	Contentforreturn="";
+	    	long processid = 0;
+	    	if (new String("*101").equals(inputcode))
+	    	{
+	    		System.out.println("inside codition "+inputcode);
+	    		processid = CreateProcesses.startProcess();
+	    		FileOutputStream fout = new FileOutputStream("/tmp/myfile.txt");
+	    		new PrintStream(fout).println(processid);
+	    		 fout.close();
+	    		//Contentforreturn = processid;
+	    		//String taaskid =   TaskID.id(processid); 
+	    		 String taskContents = CreateProcesses.getTaskContents(processid);
+	    		//Contentforreturn = staticmenu.getMenu(taaskid);
+	    		 Contentforreturn = taskContents;
+	    		
+	    	}
+	    	else 
+	    	{
+	    		FileInputStream	fin = new FileInputStream ("/tmp/myfile.txt");
+	    		//processid = new DataInputStream(fin).readLine();
+	    			
+	    		System.out.println("process is in else" + processid);
+	    		fin.close();
+	            //String tasskid = TaskID.id(processid);
+	            //String taskresult = startprocess.sp(tasskid);
+	            //System.out.println("result of taskresult" + taskresult);
+	            //String Resultofcompleteprocesss = completeprocess.CP(tasskid,inputcode);
+	            //System.out.println("result of complete process" + Resultofcompleteprocesss)
+	            
+	            //tasskid = TaskID.id(processid);
+	            //Contentforreturn = getcontent.GT(tasskid);
+	            Contentforreturn = CreateProcesses.completeTask(processid, inputcode);
+	            
+	    	}
+	    	 return	Response.ok(Contentforreturn).build();
+	    	
+	    }
+	    
+	
 
-    @GET
-    @Path("/postxml")
-    @Produces(MediaType.TEXT_PLAIN)
-    // @Consumes("text/plain")
-    public Response getHelloWorldPostxml(@QueryParam("inputcode") String inputcode) throws Exception {
-        System.out.println("inputcode " + inputcode);
-        String Contentforreturn = "";
-        long processid;
-        if (new String("*101").equals(inputcode)) {
-            System.out.println("inside if condition " + inputcode);
-            try {
-                processid = CreateProcesses.startProcess();
-                Contentforreturn = "You are in if condition";
-            } catch (ClientResponseFailure crf) {
-                System.out.println("Response status: " + crf.getResponse().getResponseStatus());
-                System.out.println("Response body" + crf.getResponse().getEntity(String.class));
-                Contentforreturn = crf.getResponse().getEntity(String.class).toString();
-            }
-            //FileOutputStream fout = new FileOutputStream("/tmp/myfile.txt");
-            //new PrintStream(fout).println(processid);
-            //fout.close();
-            //Contentforreturn = processid;
-            //String taaskid =   TaskID.id(processid);
-            //String taskContents = CreateProcesses.getTaskContents();
-            //Contentforreturn = staticmenu.getMenu(taaskid);
-            //Contentforreturn = taskContents;
-
-
-        } else {
-            Contentforreturn = "You are in else condition";
-        }
-        return Response.ok(Contentforreturn).build();
-    }
-
-
-    @POST
+	    
+	@POST
 	@Path("/msisdnapi")
 
 	@Produces(MediaType.TEXT_PLAIN)   

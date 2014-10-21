@@ -10,11 +10,10 @@ import org.kie.api.runtime.manager.RuntimeEngine;
 import org.kie.services.client.api.RemoteRestRuntimeFactory;
 import org.kie.api.task.model.TaskSummary;
 import org.kie.api.task.TaskService; 
-//import org.kie.internal.task.api.InternalTaskService;
+import org.kie.api.task.model.Task;
+import org.kie.api.task.model.Content;
 import java.util.List;
-//import org.kie.api.*;
-//import org.jbpm.task.utils.ContentMarshallerContext;
-//import org.jbpm.task.utils.ContentMarshallerHelper;
+
 
 public class CreateProcesses
 {
@@ -56,8 +55,8 @@ public class CreateProcesses
 
 		long processInstanceId = startProcess();
 		String output_ = new String("1234");
-		String taskContents = getTaskContents();
-		String taskName = completeTask(output_);
+		String taskContents = getTaskContents(processInstanceId);
+		String taskName = completeTask(processInstanceId, output_);
 
 		System.out.println("Successfully loaded processes into your JBoss BPM Suite Server. Check the server log to see the application log outputs.");
 	}
@@ -74,7 +73,7 @@ public class CreateProcesses
 		
 		
 	}
-	public static String completeTask(String output_){
+	public static String completeTask(long processInstanceId, String output_){
 		   
 		   List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("bpmsadmin", "en-UK");
 
@@ -89,19 +88,29 @@ public class CreateProcesses
 
         taskService.complete(taskId, "bpmsadmin", params);
         System.out.println("Task Completed" + taskId);
-        return task.getName();
+        return getTaskContents(processInstanceId);
 	
 	}
 	
-	public static String getTaskContents(){
+	public static String getTaskContents(long processInstanceId){
 		   
-		   List<TaskSummary> list = taskService.getTasksAssignedAsPotentialOwner("bpmsadmin", "en-UK");
+		   List<Long> list = taskService.getTasksByProcessInstanceId(processInstanceId);
 
-        TaskSummary task = list.get(0);
+        Task task = taskService.getTaskById(list.get(0).longValue());
         long taskId = task.getId();
 
-        System.out.println("Showing Task Contents" + task.getName());
-        return task.getName();
+        System.out.println("Showing Task Contents for id" + taskId + "" + task.getNames());
+        Map<String, Object> taskContents = new HashMap<String, Object>();
+        taskContents = taskService.getTaskContent(taskId);
+        //if (taskContents != null) {
+        System.out.println("Task Content size is " + taskContents.size());
+        System.out.println("Task String is" + taskContents.toString());
+        return taskContents.toString();
+        //}
+        //else {
+        	//return "Empty Task Contents";
+        //}
+        
 
         
         /* Map<String, Object> params = getTaskContent(taskId);
@@ -110,18 +119,6 @@ public class CreateProcesses
 	
 	}
 	
-	/* public static Map<String, Object> getTaskContent( long taskId) {
-			  Task taskById = taskService.getTaskById(taskId);
-              Content contentById = taskService.getContentById(taskById.getTaskData().getDocumentContentId());
-              ContentMarshallerContext context = getMarshallerContext(taskById);
-              Object unmarshalledObject = ContentMarshallerHelper.unmarshall(contentById.getContent(), context.getEnvironment(), context.getClassloader());
-              if (!(unmarshalledObject instanceof Map)) {
-                  throw new IllegalStateException(" The Task Content Needs to be a Map in order to use this method and it was: "+unmarshalledObject.getClass());
-      
-              }
-              Map<String, Object> content = (Map<String, Object>) unmarshalledObject;
-              return content;
-	} */
 	private static RuntimeEngine getRuntimeEngine()
 	{
 		try
